@@ -5,11 +5,16 @@ var utils = require('./utils');
 var runTest = require('./runTest');
 var commander = require('commander');
 var program = new commander.Command();
+var { loadPlugins } = require('./plugins');
 
 // CLI tool name and usage
 program
     .name('sla-wizard')
     .usage('<arguments> <options>');
+
+// === Plugins ===
+var ctx = { utils, generate, runTest };
+loadPlugins(program, ctx);
 
 // 'config': main command
 program.command('config')

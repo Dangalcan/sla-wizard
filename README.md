@@ -1,4 +1,5 @@
 # SLA Wizard
+
 Automated configuration of API rates and limits (specified in OpenAPI and SLA4OAI) for Envoy, HAProxy, NGinx and Traefik.
 
 ## How it works
@@ -109,7 +110,6 @@ For more information on how to use the tool for each of the four proxies, refer 
 - [Nginx](https://github.com/isa-group/sla-wizard/blob/master/docs/nginx.md)
 - [Traefik](https://github.com/isa-group/sla-wizard/blob/master/docs/traefik.md)
 
-
 ## Testing
 
 Perform the following steps to test SLA Wizard. For further testing we recommend making use of [sla-gateway-benchmark](https://github.com/isa-group/sla-gateway-benchmark).
@@ -184,6 +184,39 @@ Make use of the following command once testing completes to remove containers an
 ```bash
 npm run test_cleanup
 ```
+
+## External features
+
+It is possible to extend sla-wizard by its plugins systems. You can do it adding your custom plugins in `/plugins/customCommand.js`, where `customCommand.js` is a file that you created and contains your own features. However, you can add plugins to your sla-wizard by following these steps:
+
+1. Add the plugin that you want to include to `sla-wizard.config.json`
+
+  Here it is an example:
+
+  ```json
+  {
+    "plugins": [
+      {
+        "name": "sla-wizard-plugin-hello",
+        "config": {
+          "greeting": "Ho la"
+        }
+      }
+    ]
+  }
+  ```
+
+2. Install your plugin
+
+  ```bin/bash
+  npm install sla-wizard-plugin-hello
+  ```
+
+3. Use your plugin
+
+  ```bin/bash
+  node ./src/index.js hello
+  ```
 
 ## License
 
