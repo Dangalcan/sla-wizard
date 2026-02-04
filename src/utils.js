@@ -18,6 +18,7 @@ function validateParamsCLI(proxy, options) {
         configs.logger.error("Wrong value for --authLocation");
         process.exit();
     }
+    options.proxyPort = parseInt(options.proxyPort);
     if (!Number.isInteger(options.proxyPort) || options.proxyPort < 0 || options.proxyPort > 65536) {
         configs.logger.error("The value provided to --proxyPort must be an integer in the range 0-65536");
         process.exit();
@@ -136,8 +137,8 @@ function validateSLAs(SLAsToValidate) {
  */
 function isAValidUrl(potentialURL) {
     try {
-        new url.URL(potentialURL);
-        return true;
+        var parsed = new url.URL(potentialURL);
+        return parsed.protocol === "http:" || parsed.protocol === "https:";
     } catch (err) {
         return false;
     }
