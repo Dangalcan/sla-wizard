@@ -62,6 +62,37 @@ The following table describes all the options that SLA Wizard includes for its c
 | `--authName <authName>`             | `config`             | No       | Name of the authentication parameter, for example "token" or "apikey".                                                                                                   | _apikey_ |
 | `--specs <testSpecs>`               | `runTest`            | No       | Path to a test config file.                                                                                                                                      | _./specs/testSpecs.yaml_ |
 
+## Programmatic Usage
+
+`sla-wizard` can also be used as a Node.js module.
+
+```javascript
+const slaWizard = require("sla-wizard");
+
+// 1. Using the default function (config)
+slaWizard("nginx", {
+  outFile: "nginx.conf",
+  sla: "./specs/sla.yaml",
+  oas: "./specs/oas.yaml",
+});
+
+// 2. Using specific command methods
+slaWizard.runTest({
+  specs: "./specs/testSpecs.yaml",
+});
+
+// 3. Using plugin-specific methods
+slaWizard.configNginxConfd({
+  outDir: "./nginx-config",
+  sla: "./specs/sla.yaml",
+});
+
+slaWizard.addToConfd({
+  outDir: "./nginx-config",
+  sla: "./new-sla.yaml",
+});
+```
+
 ## Considerations
 
 ### SLA types
