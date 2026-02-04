@@ -146,8 +146,8 @@ function generateEnvoyConfig(SLAs, oasDoc, apiServerURL, configTemplatePath, aut
         }
     }
 
+    var allProxyApikeysJoined = allProxyApikeys.join('|');
     if (limitedPaths.length != Object.keys(oasDoc.paths).length) { // "ratelimiting-less" endpoints management
-        var allProxyApikeysJoined = allProxyApikeys.join('|')
         for (var endpoint in oasDoc.paths) {
             var methods = Object.keys(oasDoc.paths[endpoint]).join('|').toUpperCase();
             if (!limitedPaths.includes(endpoint)) {

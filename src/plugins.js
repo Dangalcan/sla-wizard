@@ -80,6 +80,7 @@ function loadPlugins(program, ctx) {
       console.error(`Error loading plugin: ${err.message}`);
     }
   }
+  return plugins;
 }
 
 module.exports = { use, loadPlugins };
