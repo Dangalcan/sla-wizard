@@ -139,4 +139,68 @@ describe("SLA Wizard Plugin system Test Suite", function () {
       }
     });
   });
+
+  describe("3. Dynamic Programmatic Registration (slaWizard.use)", function () {
+    it("should allow registering a plugin and its config at runtime", function () {
+      // Clear cache to start fresh without any config file influence
+      const slaWizard = freshRequire();
+      
+      const dynamicPlugin = {
+        apply: (program) => {
+          program.command('dynamic-cli').action(() => console.log('dynamic-cli-ok'));
+        },
+        dynamicMethod: (options) => {
+          return "dynamic-" + options.val;
+        }
+      };
+
+      slaWizard.use(dynamicPlugin, { val: "config-ok" });
+
+      // 1. Verify module method exposure
+      expect(slaWizard).to.have.property("dynamicMethod");
+      expect(slaWizard.dynamicMethod({})).to.equal("dynamic-config-ok");
+
+      // 2. Verify CLI command registration via script
+      const scriptPath = path.join(process.cwd(), "test-dynamic-cli.js");
+      const scriptContent = `
+        const slaWizard = require('./index.js');
+        const plugin = {
+          apply: (program) => {
+            program.command('dyn-cli').action(() => console.log('dyn-cli-ok'));
+          }
+        };
+        slaWizard.use(plugin);
+        slaWizard.program.parse(['node', 'test', 'dyn-cli']);
+      `;
+      fs.writeFileSync(scriptPath, scriptContent);
+      try {
+        const output = execSync("node test-dynamic-cli.js").toString();
+        expect(output).to.contain("dyn-cli-ok");
+      } finally {
+        if (fs.existsSync(scriptPath)) fs.unlinkSync(scriptPath);
+      }
+    });
+
+
+    it("should work when using sla-wizard as a module in a script", function () {
+      const scriptPath = path.join(process.cwd(), "test-dynamic.js");
+      const scriptContent = `
+        const slaWizard = require('./index.js');
+        const plugin = {
+          dynamicFunc: (opts) => console.log('dynamic-val-' + opts.val)
+        };
+        slaWizard.use(plugin, { val: 'from-use' });
+        slaWizard.dynamicFunc();
+      `;
+      fs.writeFileSync(scriptPath, scriptContent);
+
+      try {
+        const output = execSync("node test-dynamic.js").toString();
+        expect(output).to.contain("dynamic-val-from-use");
+      } finally {
+        if (fs.existsSync(scriptPath)) fs.unlinkSync(scriptPath);
+      }
+    });
+  });
 });
+

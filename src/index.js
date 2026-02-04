@@ -94,14 +94,26 @@ program.command('runTest')
     });
 
 /**
- * Expose plugin commands programmatically
+ * Register a plugin programmatically
+ * @param {Object|Function} pluginModule - Plugin module
+ * @param {Object} config - Optional configuration
  */
-var pluginCommands = {};
-registeredPlugins.forEach(function(plugin) {
-    var pluginModule = plugin.pluginModule;
+function use(pluginModule, config) {
+    if (config === undefined) {
+        config = {};
+    }
+
+    // 1. Apply to commander program
+    if (typeof pluginModule.apply === "function") {
+        pluginModule.apply(program, ctx, config);
+    } else if (typeof pluginModule === "function") {
+        pluginModule(program, ctx, config);
+    }
+
+    // 2. Expose plugin methods programmatically
     Object.keys(pluginModule).forEach(function(key) {
         if (key !== "apply" && typeof pluginModule[key] === "function") {
-            pluginCommands[key] = function(options) {
+            module.exports[key] = function(options) {
                 if (options === undefined) {
                     options = {};
                 }
@@ -112,10 +124,15 @@ registeredPlugins.forEach(function(plugin) {
                     authName: "apikey",
                     proxyPort: 80
                 };
-                return pluginModule[key](Object.assign({}, defaults, plugin.config, options), ctx);
+                return pluginModule[key](Object.assign({}, defaults, config, options), ctx);
             };
         }
     });
+}
+
+// Register plugins loaded from config/discovery
+registeredPlugins.forEach(function(plugin) {
+    use(plugin.pluginModule, plugin.config);
 });
 
 function runCLI() {
@@ -126,9 +143,10 @@ if (require.main === module) {
     runCLI();
 }
 
-module.exports = Object.assign({
+module.exports = Object.assign(module.exports, {
     config: config,
     runTest: runTestCmd,
     program: program,
-    runCLI: runCLI
-}, pluginCommands);
+    runCLI: runCLI,
+    use: use
+});

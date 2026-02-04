@@ -216,38 +216,101 @@ Make use of the following command once testing completes to remove containers an
 npm run test_cleanup
 ```
 
-## External features
+## Plugin System
 
-It is possible to extend sla-wizard by its plugins systems. You can do it adding your custom plugins in `/plugins/customCommand.js`, where `customCommand.js` is a file that you created and contains your own features. However, you can add plugins to your sla-wizard by following these steps:
+SLA Wizard features a powerful plugin system that allows extending both the CLI with new commands and the programmatic API with new methods.
 
-1. Add the plugin that you want to include to `sla-wizard.config.json`
+### Plugin Types
 
-  Here it is an example:
+1.  **Local Plugins**:
+    *   Stored in the `plugins/` directory of your project.
+    *   Can be a single `.js` file (e.g., `plugins/myCommand.js`) or a directory containing an index file (e.g., `plugins/my-complex-plugin/index.js`).
+    *   Discovered automatically by SLA Wizard.
 
-  ```json
-  {
-    "plugins": [
-      {
-        "name": "sla-wizard-plugin-hello",
-        "config": {
-          "greeting": "Ho la"
-        }
+2.  **External (NPM) Plugins**:
+    *   Installed via `npm install <plugin-name>`.
+    *   Must be explicitly enabled in `sla-wizard.config.json`.
+
+---
+
+### Usage for Users
+
+#### 1. Enable external plugins
+Create a `sla-wizard.config.json` file in your project root to register and configure plugins:
+
+```json
+{
+  "plugins": [
+    {
+      "name": "sla-wizard-plugin-hello",
+      "config": {
+        "greeting": "Welcome"
       }
-    ]
-  }
-  ```
+    }
+  ]
+}
+```
 
-2. Install your plugin
+#### 2. Install the plugin
+```bash
+npm install sla-wizard-plugin-hello
+```
 
-  ```bin/bash
-  npm install sla-wizard-plugin-hello
-  ```
+#### 3. Use via CLI
+Plugins can register new commands that appear in the help menu:
+```bash
+node index.js hello --name Developer
+# Output: Welcome, Developer! 👋
+```
 
-3. Use your plugin
+---
 
-  ```bin/bash
-  node ./src/index.js hello
-  ```
+### Usage for Developers (Programmatic)
+
+#### Using plugins as module methods
+When `sla-wizard` loads a plugin, it automatically attaches its exported functions (excluding `apply`) as methods to the main `sla-wizard` module.
+
+```javascript
+const slaWizard = require('sla-wizard');
+
+// 1. If configured in sla-wizard.config.json, it's ready to use:
+slaWizard.hello({ name: 'User' });
+
+// 2. Register plugins dynamically at runtime:
+const myLocalPlugin = require('./my-local-plugin');
+slaWizard.use(myLocalPlugin, { customSetting: 'active' });
+
+slaWizard.myPluginMethod();
+```
+
+---
+
+### Creating a Plugin
+
+A plugin is a Node.js module that can export an `apply` function and/or other utility methods.
+
+```javascript
+/**
+ * the 'apply' function is called during initialization.
+ * It receives the 'program' (Commander instance), 'ctx' (Core utilities), and 'config'.
+ */
+module.exports.apply = (program, ctx, config) => {
+  program
+    .command("my-command")
+    .description("Description for CLI help")
+    .action((options) => {
+      // CLI logic here
+    });
+};
+
+/**
+ * Any other exported function is automatically attached to the sla-wizard module.
+ */
+module.exports.myUtility = (options, ctx) => {
+  return "Result from plugin";
+};
+```
+
 
 ## License
 
