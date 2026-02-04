@@ -48,12 +48,19 @@ function loadPlugins(program, ctx) {
   // === 1. Local plugins ===
   const pluginsDir = path.join(process.cwd(), "plugins");
   if (fs.existsSync(pluginsDir)) {
-    fs.readdirSync(pluginsDir).forEach((file) => {
-      if (file.endsWith(".js")) {
-        const pluginPath = path.join(pluginsDir, file);
-        const plugin = require(pluginPath);
-        const conf = pluginsConfig.find((p) => p.name === file.replace(".js", ""));
-        use(plugin, conf?.config || {});
+    fs.readdirSync(pluginsDir).forEach((name) => {
+      const pluginPath = path.join(pluginsDir, name);
+      const isDir = fs.lstatSync(pluginPath).isDirectory();
+      
+      if (name.endsWith(".js") || isDir) {
+        try {
+          const plugin = require(pluginPath);
+          const pluginName = name.replace(".js", "");
+          const conf = pluginsConfig.find((p) => p.name === pluginName);
+          use(plugin, conf?.config || {});
+        } catch (err) {
+          console.error(`Error loading local plugin ${name}: ${err.message}`);
+        }
       }
     });
   }

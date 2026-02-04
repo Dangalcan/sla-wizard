@@ -112,7 +112,7 @@ registeredPlugins.forEach(function(plugin) {
                     authName: "apikey",
                     proxyPort: 80
                 };
-                return pluginModule[key](Object.assign({}, defaults, options), ctx);
+                return pluginModule[key](Object.assign({}, defaults, plugin.config, options), ctx);
             };
         }
     });
