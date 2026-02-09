@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 var generate = require('./generate');
-var generateSLAs = require('./generate-sla');  
 var utils = require('./utils');
 var runTest = require('./runTest');
 var commander = require('commander');
@@ -83,26 +82,6 @@ program.command('config')
             options.authName,
             options.proxyPort);
     })
-
-
-program.command('generate-slas')
-    .description('Generates SLAs with valid apikeys using an SLA template and a CSV with the API clients')
-    .requiredOption('--slaTemplate <slaTemplate>', 'Path to SLA template in YAML format following OAS4SLAs')
-    .requiredOption('--csv <csvPath>', 'Path to CSV with client information. Must have an "email" column')
-    .requiredOption('-o, --outDir <outDir>', 'Directory where the generated SLAs will be saved')
-    .option('--numKeys <numKeys>', 'Number of apikeys that each client should have. Default is 1', 1)
-    .option('--mappingFile <mappingFile>', 'Path where the apikeys mapping JSON will be saved. Defaults to <outDir>/apikeys_mapping.json')
-    .option('--existingSLAs <existingSLAs>', 'Path to a folder containing existing SLAs to update')
-    .action((options) => {
-        generateSLAs.generateSLAsFromCSV(
-            options.slaTemplate,
-            options.csv,
-            options.outDir,
-            parseInt(options.numKeys, 10),
-            options.mappingFile,
-            options.existingSLAs
-        );
-    });
 
 // 'runTest': test command
 program.command('runTest')

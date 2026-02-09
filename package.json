@@ -10,8 +10,6 @@
     "test:core": "mocha ./tests/core/core.js",
     "test:plugins": "mocha ./tests/core/plugin-system.js",
     "test:all": "npm run test:core && npm run test:plugins",
-    "test:exhaustive": "mocha ./tests/generate_sla_exhaustive.js",
-    "test:scenarios": "mocha ./tests/test_sla_generation_scenarios.js",
     "test_cleanup": "bash tests/test_cleanup.sh",
     "start": "node index.js"
   },
@@ -21,8 +19,6 @@
     "apipecker": "^1.3.1",
     "axios": "^0.26.1",
     "commander": "^9.0.0",
-    "crypto": "^1.0.1",
-    "csv-parser": "^3.2.0",
     "express": "^4.17.3",
     "js-yaml": "^4.1.0",
     "jsonschema": "^1.4.0",
